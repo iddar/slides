@@ -1,0 +1,35 @@
+*{
+  margin: 0; padding: 0; border: 0;
+}
+body{
+  font-family: helvetica, monospace;
+  text-align: center;
+  background: #A7C520;
+}
+
+div{
+  background: #F5F6D4;
+  margin: 0 auto;
+  width: 30%;
+  color: #493F0B;
+  font-size: 1.4em;
+  width: 50%;
+  height: 100vh;
+  padding-top: 1em;
+}
+
+a{
+  display: block;
+  text-decoration: none;
+  transition: background .5s;
+  padding: 1em;
+  margin: 1em auto;
+  width: 60%;
+  font-size: .7em;
+  background: #CDE855;
+  color: #493F0B;
+}
+
+a:hover{
+  background: #85DB18;
+}
