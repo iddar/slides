@@ -44,6 +44,8 @@
       <p>
         <small>por <a href="http://github.com/iddar">Iddar Olivares</a> / <a href="http://twitter.com/iddar">@iddar</a></small>
       </p>
+
+      <p>Descarga el codigo de la practia desde <a href="">aquí</a></p>
     </section>
 
     <section>
@@ -203,13 +205,75 @@
     </section>
 
     <section>
+      <h2>express</h2>
+      <pre><code>
+        var express = require('express');
+        var app = express();
+        var http = require('http').Server(app);
+        var WEBPORT = 3000;
+
+        function getRootCallback(req, res){
+        	res.sendfile('index.html');
+        }
+
+        app.get('/', getRootCallback);
+
+        http.listen(WEBPORT, function serverStart() {
+        	console.log(WEBPORT);
+        });
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>Socket.io</h2>
+      <pre><code>
+        var express = require('express');
+        var app = express();
+        var http = require('http').Server(app);
+        var io = require('socket.io')(http);
+
+        io.on('connection', function onConnection(socket) {
+        	console.log('Se a conectado un usuario :)');
+
+        	// Event onDisconnect
+        	socket.on('disconnect', function onDisconnect() {
+        		console.log('El usuario se desconecto :(');
+        	});
+        });
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>Node Serial</h2>
+      <pre><code>
+        var serialport = require("serialport");
+        var SerialPort = serialport.SerialPort;
+        var SERIALPORT = '/dev/tty.usbserial-A9007WoZ';
+
+        var SerialPort = new SerialPort(SERIALPORT, {
+        	baudrate: 9600,
+        	parser: serialport.parsers.readline("\n")
+        });
+
+        function onDataCallback (serialLine){
+        	var data = JSON.parse(serialLine.toString());
+        	console.log(data.sensor);
+        }
+        SerialPort.on('data', onDataCallback);
+      </code></pre>
+    </section>
+
+    <section>
      <h2>Gracias</h2>
       <img src="img/gif/fin.gif" alt="">
       <p>http://github.com/iddar/slides</p>
       <p>
-      <small>Iddar Olivares - <a href="http://twitter.com/iddar">@iddar</a>
+      <small>
+        <a href="http://github.com/iddar">Iddar Olivares</a> / <a href="http://twitter.com/iddar">@iddar</a>
       </small>
       </p>
+
+      <small>Descarga el codigo de la practia desde <a href="">aquí</a></small>
     </section>
 
 
