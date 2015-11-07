@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Tendencias del desarrollo...</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <script src="http://localhost:1337/vorlon.js"></script>
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+  <div class="reveal">
+
+  <!-- Any section element inside of this container is displayed as a slide -->
+  <div class="slides">
+    <section>
+      <h1>IOT.JS</h1>
+      <h3>Johnny Five + socket.io</h3>
+      <p>
+        <small>por <a href="http://github.com/iddar">Iddar Olivares</a> / <a href="http://twitter.com/iddar">@iddar</a></small>
+      </p>
+
+      <p>Descarga el codigo de la practia desde <a href="https://github.com/iddar/textme">aquí</a></p>
+    </section>
+
+    <section>
+      <h2>Internet de la cosas</h2>
+      <img class="fragment" src="img/map-1.png" alt="">
+    </section>
+
+    <section>
+      <img src="img/gif/02.gif" alt="">
+    </section>
+
+    <section>
+      <h2>Temario</h2>
+      <ul>
+        <li class="fragment">El hardware</li>
+        <li class="fragment">El server</li>
+        <li class="fragment">La web</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>El hardware</h3>
+      <img src="http://johnny-five.io/img/static/johnny-five-fb.png" alt="" />
+    </section>
+
+    <section>
+      <h2>Anatomia: Johnny Five</h2>
+      <ul>
+        <li class="fragment">Board</li>
+        <li class="fragment">Eventos</li>
+        <li class="fragment">Devices &amp Drives</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Creando el board</h3>
+      <pre><code>
+        'use strict'
+        const Five = require('johnny-five')
+        const board = new Five.Board({repl: false})
+
+        board.on('ready', () => {
+          .......
+          .......
+          .......
+        })
+      </code></pre>
+    </section>
+
+    <section>
+      <h3>Board + Devices &amp Drives</h3>
+      <pre><code>
+        'use strict'
+        const Five = require('johnny-five')
+        const board = new Five.Board({repl: false})
+
+        board.on('ready', () => {
+          let devices = {}
+          devices.lcd = new Five.LCD({
+            controller: 'JHD1313M1'
+          })
+          callback(null, devices)
+        })
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>Board + Devices &amp Drives + Commonjs</h2>
+      <pre><code>
+        'use strict'
+        const Five = require('johnny-five')
+        const board = new Five.Board({repl: false})
+
+        function setup (callback) {
+          board.on('ready', () => {
+            let devices = {}
+            devices.lcd = new Five.LCD({
+              controller: 'JHD1313M1'
+            })
+            callback(null, devices)
+          })
+        }
+
+        module.exports = setup
+      </code></pre>
+    </section>
+
+    <section>
+      <h3>El server</h3>
+      <img src="http://www.blogcdn.com/www.engadget.com/media/2013/04/nebula-one.jpg" alt="" />
+    </section>
+
+    <section>
+      <h3>Modulos del server</h3>
+      <ul>
+        <li class="fragment">HTTP Server</li>
+        <li class="fragment">Websocket Server</li>
+        <li class="fragment">Eventos</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>HTTP Server</h2>
+      <pre><code>
+        'use strict'
+        const express = require('express')
+        const app = express()
+        const http = require('http').Server(app)
+        const path = require('path')
+        function server (config) {
+          const PORT = process.env.PORT || config.PORT
+          const pub = path.resolve(__dirname, '..', 'public')
+          app.use(express.static(pub))
+          http.listen(PORT, () => {
+            console.log('http://localhost:' + PORT)
+          })
+          return http
+        }
+        module.exports = server
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>Websocket Server</h2>
+      <pre><code>
+        'use strict'
+        const SocketIo = require('socket.io')
+
+        function socketServer (server, callback) {
+          const io = SocketIo(server)
+          io.on('connection', (socket) => {
+            console.log('Socket.io Ok')
+            callback(socket)
+          })
+        }
+
+        module.exports = socketServer
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>Eventos</h2>
+      <pre><code>
+        'use strict'
+        const onStartSocket = (devices, socket) => {
+          socket.on('text', (message) => {
+            devices.lcd.clear().print(message)
+          })
+
+          socket.on('color', (rgbColor) => {
+            devices.lcd.bgColor(rgbColor.r, rgbColor.g, rgbColor.b)
+          })
+        }
+
+        module.exports = onStartSocket
+      </code></pre>
+    </section>
+
+    <section>
+      <h3>La web</h3>
+      <img src="http://www.eternoalumno.com/wp-content/uploads/2015/02/logo-html5.jpg" alt="" />
+    </section>
+
+    <section>
+      <h3>Modulos de la web</h3>
+      <ul>
+        <li class="fragment">HTML</li>
+        <li class="fragment">CSS</li>
+        <li class="fragment">JS</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>HTML</h2>
+      <pre><code>
+  </ body>
+    <div class="form">
+      <input type="text" placeholder="Text me..." maxlength="16">
+      <input type="color" value="#96d445">
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="lodash.min.js" charset="utf-8"></script>
+    <script src="hex2rgb.js"></script>
+    <script src="app.js"></script>
+  </ body>
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>CSS</h2>
+      <pre><code>
+        body {
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+          background: #bababa;
+        }
+        .form {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          height: 100vh;
+        }
+        ......
+      </code></pre>
+    </section>
+
+    <section>
+      <h2>JS</h2>
+      <pre><code>
+        'use strict'
+
+        const socket = io.connect(window.location.origin)
+        const inputs = document.getElementsByTagName('input')
+        const text = inputs[0]
+        const color = inputs[1]
+      </code></pre>
+    </section>
+
+
+    <section>
+      <h2>JS</h2>
+      <pre><code>
+        const debounceInput = _.debounce((event) => {
+          const value = event.target.value
+          socket.emit('text', _.deburr(value))
+          console.log(value)
+        }, 150)
+        const debounceColor = _.debounce((event) => {
+          const value = event.target.value
+          socket.emit('color', hexToRgb(value))
+          console.log(hexToRgb(value))
+        }, 25)
+
+        text.focus()
+        text.addEventListener('input', debounceInput)
+        color.addEventListener('input', debounceColor)
+      </code></pre>
+    </section>
+
+    <section>
+      <h3>El resultado</h3>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/ifoVkR0g9s8" frameborder="0" allowfullscreen></iframe>
+    </section>
+
+    <section>
+     <h2>Gracias</h2>
+      <img src="img/gif/fin.gif" alt="">
+      <p>http://github.com/iddar/slides</p>
+      <p>
+      <small>
+        <a href="http://github.com/iddar">Iddar Olivares</a> / <a href="http://twitter.com/iddar">@iddar</a>
+      </small>
+      </p>
+
+      <small>Descarga el codigo de la practia desde <a href="https://github.com/iddar/textme">aquí</a></small>
+    </section>
+
+
+    </div>
+  </div>
+
+  <script src="lib/js/head.min.js"></script>
+  <script src="js/reveal.js"></script>
+  <script>
+    // Full list of configuration options available at:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+      transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+      // Optional reveal.js plugins
+      dependencies: [
+        { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/highlight/highlight.js', async: true,
+          condition: function() { return !!document.querySelector( 'pre code' ); },
+          callback: function() { hljs.initHighlightingOnLoad(); }
+        },
+        { src: 'plugin/zoom-js/zoom.js', async: true },
+        { src: 'plugin/notes/notes.js', async: true }
+      ]
+    });
+  </script>
+
+  </body>
+</html>
